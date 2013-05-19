@@ -1,6 +1,9 @@
-package kchapl.toodledo
+package kchapl.toodledo.client
 
 import scalax.file.Path
+import kchapl.toodledo._
+import scala.App
+import kchapl.toodledo.FileSysTokenCache
 
 
 object Client extends App {
@@ -11,8 +14,10 @@ object Client extends App {
   val appId = (credentialsPath / "td.appId.txt").string
   val appToken = (credentialsPath / "td.appToken.txt").string
 
-  val tokenCache = new FileSysTokenCache(userId, appId, appToken)
-  val auth = new Authentication(userPassword, appToken, tokenCache)
+  val app = App(appId, appToken)
+  val user = User(userId, userPassword)
+  val tokenCache = new FileSysTokenCache(app, user)
+  val auth = new Authentication(app, user, tokenCache)
   val key = auth.key
   println(key)
 
@@ -41,3 +46,5 @@ object Client extends App {
   }
 
 }
+
+
