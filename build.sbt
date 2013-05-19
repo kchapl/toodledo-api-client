@@ -4,6 +4,8 @@ version := "1.0"
 
 scalaVersion := "2.10.0"
 
+scalacOptions ++= Seq("-deprecation", "-feature")
+
 libraryDependencies ++= Seq(
     "net.databinder.dispatch" %% "dispatch-core" % "0.10.0",
     "org.slf4j" % "slf4j-simple" % "1.6.4",

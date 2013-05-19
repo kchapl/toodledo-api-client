@@ -2,8 +2,10 @@ package kchapl.toodledo
 
 import scalax.file.Path
 import org.joda.time.DateTime
+import scala.language.postfixOps
 
-sealed class TokenAndExpiryTime(val token: String, expires: DateTime) {
+
+class TokenAndExpiryTime(val token: String, expires: DateTime) {
   def isActive = expires.isAfterNow
 }
 

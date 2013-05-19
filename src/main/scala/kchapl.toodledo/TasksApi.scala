@@ -1,46 +1,35 @@
 package kchapl.toodledo
 
-import dispatch._
-import dispatch.Defaults._
 import net.liftweb.json._
+import org.joda.time.DateTime
 
-class TasksApi(key: => String) {
+class TasksApi(key: => String, httpClient: HttpClient = Registry.httpClient) {
+
+  private val baseParams = Map("key" -> key)
 
   def fetch: List[Task] = {
-    val x = for (responseText <- Http({
-      val serviceHost = host("api.toodledo.com") / "2"
-      serviceHost / "tasks" / "get.php" <<? Map("key" -> key, "comp" -> "0", "fields" -> "context")
-    } OK as.String)) yield responseText
+    val extraParams = Map("comp" -> "0", "fields" -> "context")
+    val responseBody = httpClient.makeGetRequest(List("tasks", "get.php"), baseParams ++ extraParams)
 
-    val json = parse(x())
-    val y = for {
-      JObject(o) <- json
+    for {
+      JObject(o) <- parse(responseBody)
       JField("id", JString(id)) <- o
       JField("title", JString(title)) <- o
       JField("modified", JInt(modified)) <- o
       JField("completed", JInt(completed)) <- o
       JField("context", JString(context)) <- o
-    } yield Task(id.toLong, title, modified.toLong, completed.toLong, context.toLong)
-
-    y
+    } yield Task(id.toLong, title, new DateTime(modified.toLong), new DateTime(completed.toLong), context.toLong)
   }
 
-  def fetchDeleted: List[Task] = {
-    val x = for (responseText <- Http({
-      val serviceHost = host("api.toodledo.com") / "2"
-      serviceHost / "tasks" / "deleted.php" <<? Map("key" -> key)
-    } OK as.String)) yield responseText
+  def fetchDeleted: List[Long] = {
+    val responseBody = httpClient.makeGetRequest(List("tasks", "deleted.php"), baseParams)
 
-    val json = parse(x())
-    val y: List[Long] = for {
-      JObject(o) <- json
+    for {
+      JObject(o) <- parse(responseBody)
       JField("id", JString(id)) <- o
     } yield id.toLong
-
-    fetch filter (task => (y.contains(task.id)))
   }
 
 }
 
-// TODO: joda date fields
-case class Task(id: Long, title: String, modified: Long, completed: Long, contextId: Long)
+case class Task(id: Long, title: String, modified: DateTime, completed: DateTime, contextId: Long)

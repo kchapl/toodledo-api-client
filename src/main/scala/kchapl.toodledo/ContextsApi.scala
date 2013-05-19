@@ -1,26 +1,17 @@
 package kchapl.toodledo
 
-import dispatch._
-import dispatch.Defaults._
 import net.liftweb.json._
 
-class ContextsApi(key: => String) {
+class ContextsApi(key: => String, httpClient: HttpClient = Registry.httpClient) {
 
   def fetch: List[Context] = {
-    val x = for (responseText <- Http({
-      val serviceHost = host("api.toodledo.com") / "2"
-      serviceHost / "contexts" / "get.php" <<? Map("key" -> key)
-    } OK as.String)) yield responseText
+    val responseBody = httpClient.makeGetRequest(List("contexts", "get.php"), Map("key" -> key))
 
-    val json = parse(x())
-    val y = for {
-      JObject(o) <- json
+    for {
+      JObject(o) <- parse(responseBody)
       JField("id", JString(id)) <- o
       JField("name", JString(name)) <- o
     } yield Context(id.toLong, name)
-
-    y
-
   }
 
 }

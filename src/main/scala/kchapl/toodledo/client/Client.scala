@@ -8,6 +8,8 @@ import kchapl.toodledo.FileSysTokenCache
 
 object Client extends App {
 
+  //TODO compile with deprecation
+  //TODO compile with feature warnings
   val credentialsPath = Path.fromString(sys.env("HOME")) / "Desktop"
   val userId = (credentialsPath / "td.userId.txt").string
   val userPassword = (credentialsPath / "td.userPwd.txt").string
@@ -18,14 +20,14 @@ object Client extends App {
   val user = User(userId, userPassword)
   val tokenCache = new FileSysTokenCache(app, user)
   val auth = new Authentication(app, user, tokenCache)
-  val key = auth.key
-  println(key)
+  println(auth.key)
 
-  val contextsApi = new ContextsApi(key)
+  val contextsApi = new ContextsApi(auth.key)
   val contexts = contextsApi.fetch
   println(contexts)
 
-  val tasksApi = new TasksApi(key)
+  // TODO: ensure fetched by name not value
+  val tasksApi = new TasksApi(auth.key)
   val tasks = tasksApi.fetch
   println(tasks)
   // TODO: fix this
