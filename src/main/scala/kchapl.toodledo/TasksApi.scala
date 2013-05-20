@@ -11,6 +11,7 @@ class TasksApi(key: => String, httpClient: HttpClient = Registry.httpClient) {
     val extraParams = Map("comp" -> "0", "fields" -> "context")
     val responseBody = httpClient.makeGetRequest(List("tasks", "get.php"), baseParams ++ extraParams)
 
+    // TODO: modified and completed times don't look right - unit test with specs2 and stub httpclient
     for {
       JObject(o) <- parse(responseBody)
       JField("id", JString(id)) <- o
