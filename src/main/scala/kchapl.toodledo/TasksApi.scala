@@ -1,3 +1,11 @@
+/*
+ * Copyright (c) 2013. Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+ * Morbi non lorem porttitor neque feugiat blandit. Ut vitae ipsum eget quam lacinia accumsan.
+ * Etiam sed turpis ac ipsum condimentum fringilla. Maecenas magna.
+ * Proin dapibus sapien vel ante. Aliquam erat volutpat. Pellentesque sagittis ligula eget metus.
+ * Vestibulum commodo. Ut rhoncus gravida arcu.
+ */
+
 package kchapl.toodledo
 
 import net.liftweb.json._
@@ -11,7 +19,6 @@ class TasksApi(key: => String, httpClient: HttpClient = Registry.httpClient) {
     val extraParams = Map("comp" -> "0", "fields" -> "context")
     val responseBody = httpClient.makeGetRequest(List("tasks", "get.php"), baseParams ++ extraParams)
 
-    // TODO: modified and completed times don't look right - unit test with specs2 and stub httpclient
     for {
       JObject(o) <- parse(responseBody)
       JField("id", JString(id)) <- o
@@ -19,7 +26,10 @@ class TasksApi(key: => String, httpClient: HttpClient = Registry.httpClient) {
       JField("modified", JInt(modified)) <- o
       JField("completed", JInt(completed)) <- o
       JField("context", JString(context)) <- o
-    } yield Task(id.toLong, title, new DateTime(modified.toLong), new DateTime(completed.toLong), context.toLong)
+    } yield Task(id.toLong, title,
+      new DateTime(modified.toLong * 1000),
+      new DateTime(completed.toLong * 1000),
+      context.toLong)
   }
 
   def fetchDeleted: List[Long] = {
