@@ -11,16 +11,19 @@ package kchapl.toodledo
 import org.specs2.mutable._
 
 
-class ContextsApiTest extends Specification {
+class FoldersApiTest extends Specification {
 
-  "The ContextsApi" should {
-    "fetch Context instances" in {
+  "The FoldersApi" should {
+    "fetch Folder instances" in {
       val httpClient = new StubHttpClient
-      val api = new ContextsApi(null, httpClient)
 
-      val contexts = api.fetch
+      val folders = FoldersApi.fetch(null, httpClient)
 
-      contexts must contain(Context(1, "@ca"), Context(2, "@cb"), Context(3, "@cc")).inOrder
+      folders must contain(
+        Folder(123, "Shopping", prv = false, archived = false, 1),
+        Folder(456, "Home Repairs", prv = false, archived = false, 2),
+        Folder(789, "Vacation Planning", prv = false, archived = false, 3)
+      ).inOrder
     }
   }
 }
