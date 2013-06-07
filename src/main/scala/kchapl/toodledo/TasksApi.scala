@@ -11,13 +11,17 @@ package kchapl.toodledo
 import net.liftweb.json._
 import org.joda.time.DateTime
 
-class TasksApi(key: => String, httpClient: HttpClient = Registry.httpClient) {
 
-  private val baseParams = Map("key" -> key)
+object TasksApi {
 
-  def fetch: List[Task] = {
-    val extraParams = Map("comp" -> "0", "fields" -> "context")
-    val responseBody = httpClient.makeGetRequest(List("tasks", "get.php"), baseParams ++ extraParams)
+  def fetch(key: => String, httpClient: HttpClient = Registry.httpClient)
+           (modifiedBefore: Option[DateTime] = None,
+            modifiedAfter: Option[DateTime] = None,
+            completed: Option[Boolean] = None)
+           (fetchFields: List[String] = Nil): List[Task] = {
+    val baseParams = Map("key" -> key)
+    val params = Map("comp" -> "0", "fields" -> "context")
+    val responseBody = httpClient.makeGetRequest(List("tasks", "get.php"), params)
 
     for {
       JObject(o) <- parse(responseBody)
@@ -32,7 +36,8 @@ class TasksApi(key: => String, httpClient: HttpClient = Registry.httpClient) {
       context.toLong)
   }
 
-  def fetchDeleted: List[Long] = {
+  def fetchDeleted(key: => String, httpClient: HttpClient = Registry.httpClient): List[Long] = {
+    val baseParams = Map("key" -> key)
     val responseBody = httpClient.makeGetRequest(List("tasks", "deleted.php"), baseParams)
 
     for {
@@ -42,5 +47,6 @@ class TasksApi(key: => String, httpClient: HttpClient = Registry.httpClient) {
   }
 
 }
+
 
 case class Task(id: Long, title: String, modified: DateTime, completed: DateTime, contextId: Long)

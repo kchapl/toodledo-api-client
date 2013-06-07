@@ -54,7 +54,7 @@ trait TokenCache {
 }
 
 case class FileSysTokenCache(app: App, user: User, httpClient: HttpClient = Registry.httpClient) extends TokenCache {
-  val tokenStore = Path.fromString(sys.env("TMP")) / "td.token.txt"
+  val tokenStore = Path.fromString(sys.props.get("java.io.tmpdir").get) / "td.token.txt"
 
   def currentTokenAndExpiryTime: Option[TokenAndExpiryTime] = {
     if (!tokenStore.exists) None
