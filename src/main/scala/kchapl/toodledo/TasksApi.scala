@@ -19,8 +19,9 @@ object TasksApi {
             modifiedAfter: Option[DateTime] = None,
             completed: Option[Boolean] = None)
            (fetchFields: List[String] = Nil): List[Task] = {
-    val baseParams = Map("key" -> key)
-    val params = Map("comp" -> "0", "fields" -> "context")
+    //val params = Map("comp" -> "0", "fields" -> "context")
+    val baseParams: Map[String, String] = Map("key" -> key)
+    val params = modifiedBefore.foldLeft(baseParams)((ps, p) => ps + ("modbefore" -> p.toString))
     val responseBody = httpClient.makeGetRequest(List("tasks", "get.php"), params)
 
     for {
